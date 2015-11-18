@@ -1,39 +1,41 @@
-//assign3, joekao, 20151105
+//You should implement your assign3 here.
 final int GAME_START = 0;
 final int GAME_RUN = 1;
 final int GAME_OVER = 2;
-
 int gameState;
+
+final int ENEMY_1=0;
+final int ENEMY_2=1;
+final int ENEMY_3=2;
+int enemyState;
 
 PImage bg1Img, bg2Img, enemyImg, fighterImg, hpImg, treasureImg, start1Img, start2Img, end1Img, end2Img;
 
 // treasure positon
-int treasurex=floor(random(25,590));
-int treasurey=floor(random(50,440));
-int treasurew=40;
-int treasureh=40;
+int treasureX=floor(random(25,590));
+int treasureY=floor(random(50,440));
+int treasureW=40;
+int treasureH=40;
 
 int hplength; // hp
 
 int bg1x; // background1
 int bg2x; // backpround2
+
 // enemy postion & speed
-int enemyx=0;
-int enemyy=floor(random(50,150));
-int enemyw=50;
-int enemyh=60;
-float enemySpeedx;
-float enemySpeedy;
-int enemyWidth=70;
-int enemyHeight=70;
-int enemyTeamX = 0;
-int enemyTeamY = enemyy +70;  
+int enemyX=0;
+int enemyY=floor(random(50,430));
+int enemyW=50;
+int enemyH=60;
+int enemySpace=10;
+float enemySpeedX;
+float enemySpeedY;
 
 // fighter postion & speed
-int fighterx;
-int fightery;
-int fighterw=40;
-int fighterh=50;
+int fighterX;
+int fighterY;
+int fighterW=40;
+int fighterH=50;
 float fighterSpeed;
 
 
@@ -59,19 +61,19 @@ void setup () {
   end2Img=loadImage("img/end2.png");
   
   //background intial
-  bg1x=640;
-  bg2x=0;
+  bg1x=0;
+  bg2x=-640;
   
   //enemy move direction
-  enemySpeedx= 3;
-  enemySpeedy= 0;
+  enemySpeedX= 5;
+  enemySpeedY= 0;
   
   // fighter speed
   fighterSpeed=5;
   
   // fighter position
-  fighterx=580;
-  fightery=240;
+  fighterX=580;
+  fighterY=240;
   //  hp length
   hplength = 2*200/10;
 
@@ -100,15 +102,14 @@ void draw() {
       
     case GAME_RUN:
       
-      image(bg1Img,bg1x-640,0);
-      image(bg2Img,bg2x-640,0);
-      image(fighterImg,fighterx,fightery);
+      image(bg1Img,bg1x,0);
+      image(bg2Img,bg2x,0);
+      image(fighterImg,fighterX,fighterY);
       image(hpImg,20,20);
-      image(treasureImg,treasurex,treasurey);
-      image(enemyImg,enemyx,enemyy);
+      image(treasureImg,treasureX,treasureY);
+      image(enemyImg,enemyX,enemyY);
       
-      // reset hp
-     
+           
       // hp position 
       noStroke();
       colorMode(RGB);
@@ -118,66 +119,145 @@ void draw() {
 
       // background move
       bg1x += 1;
-      bg1x %= 1280;
       bg2x +=1;
-      bg2x %=1280;
-      // enemy move
-      enemyx += enemySpeedx;
-      enemyy += enemySpeedy;
-      enemyx %= 640+280;
-      
-      for (int row = 0; row < 5; row++){
-        for ( int col = 0; col < 5; col ++){
-                  
-        enemyTeamX = enemyx - (enemyWidth)*col;
-        image(enemyImg,enemyTeamX,enemyTeamY);
-        enemyTeamY = enemyy+(enemyHeight)*row;
-        }
+      if (bg1x>=640){
+      bg1x=-640;
       }
+      if (bg2x>=640){
+      bg2x=-640;
+      }
+      
+      switch (enemyState){
+      case ENEMY_1:
+        for(int i=0; i<5; i++){
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY);
+        }
+      enemyX += enemySpeedX;
+      //enemy boundary 
+      if (enemyY>420){
+        enemyY=420;
+        }
+      if (enemyX> 640+4*(enemyW+enemySpace)){
+        enemyState=ENEMY_2;
+        enemyX=-50;
+        }
+      break;
+      
+      case ENEMY_2:
+       for(int i=0; i<5; i++){
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY+i*enemyH);
+       }
+       enemyX += enemySpeedX;
+        //enemy boundary 
+        if (enemyY>420-5*enemyH){
+          enemyY=420-5*enemyH;
+        }
+        if (enemyX > 640+4*(enemyW+enemySpace)){
+          enemyState=ENEMY_3;
+          enemyX=-50;
+        }
+      break;
+      
+      case ENEMY_3:
+         //enemy boundary 
+        if (enemyY>420-3*enemyH){
+          enemyY=420-3*enemyH;
+        }   
+        if (enemyY<50+3*enemyH){
+          enemyY=50+3*enemyH;
+        }   
+      
+        for(int i=0; i<5; i++){
+          if (i==0){
+          image(enemyImg, enemyX, enemyY);
+          }
+          if (i==1){
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY+i*enemyH);          
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY-i*enemyH);
+          }
+          if (i==2){
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY+i*enemyH);          
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY-i*enemyH);
+          }
+          if (i==3){
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY+enemyH);          
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY-enemyH);
+          }
+          if (i==4){
+          image(enemyImg, enemyX-i*(enemyW+enemySpace), enemyY); 
+          }
+        }
+        enemyX += enemySpeedX; 
+        if (enemyX > 640+4*(enemyW+enemySpace)){
+          enemyState=ENEMY_1;
+          enemyX=-50;
+        }
+      break;
+      }
+      
+        
+      //if(enemyY>fighterY){
+      //enemyY -=2;
+      //} else {
+      //enemyY +=2;
+      //}
+
 
       // fighter move
       if(upPressed){
-        fightery -= fighterSpeed;
+        fighterY -= fighterSpeed;
       }
       if(downPressed){
-        fightery += fighterSpeed;
+        fighterY += fighterSpeed;
       }
       if(leftPressed){
-        fighterx -= fighterSpeed;
+        fighterX -= fighterSpeed;
       }
       if(rightPressed){
-        fighterx += fighterSpeed;
+        fighterX += fighterSpeed;
       }
       
       // fighter over boundary
-      if(fightery < 0){
-        fightery = 0;
+      if(fighterY < 0){
+        fighterY = 0;
       }
-      if(fightery > height-50){
-        fightery = height-50;
+      if(fighterY > height-50){
+        fighterY = height-50;
       }
-      if(fighterx < 0){
-        fighterx = 0;
+      if(fighterX < 0){
+        fighterX = 0;
       }
-      if(fighterx > width-50){
-        fighterx = width-50;
+      if(fighterX > width-50){
+        fighterX = width-50;
       } 
                   
       // get treasure
-      if (fighterx <= treasurex+treasurew && fighterx >=treasurex-fighterw){
-        if (fightery >= treasurey-fighterh && fightery <= treasurey+treasureh){
+      if (fighterX <= treasureX+treasureW && fighterX >=treasureX-fighterW){
+        if (fighterY >= treasureY-fighterH && fighterY <= treasureY+treasureH){
         hplength += 20;
-        treasurex=floor(random(25,590));
-        treasurey=floor(random(50,440));
+        treasureX=floor(random(25,590));
+        treasureY=floor(random(50,440));
         }
       }
       if (hplength>200){
         hplength=200;
       }
           
-          
+            
+       // touch enemy
+      //if (enemyX >= fighterX-enemyW && enemyX <= fighterX+fighterW){
+        //if (enemyY >= fighterY-enemyH && enemyY <= fighterY+fighterH){
+         //hplength -= 40;
+          //enemyX=0;
+          //enemyY=floor(random(50,430));
+        //}
+      //} 
                    
-   
+      // game over
+      if (hplength<=0){
+        gameState= GAME_OVER;
+        hplength=40;
+      }
       break;
       
     case GAME_OVER:
